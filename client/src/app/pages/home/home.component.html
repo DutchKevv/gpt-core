@@ -1,0 +1,22 @@
+<div style="display: flex; flex-direction: column; width: 100%; justify-content: center; align-items: center;">
+
+  <button mat-button mat-raised-button color="primary" (click)="active = 'speech'" *ngIf="active === ''">
+    <mat-icon>mic</mat-icon>
+    I want to talk
+  </button>
+
+  <button mat-button mat-raised-button color="primary" (click)="active = 'speech'" *ngIf="active === ''">
+    <mat-icon>question_mark</mat-icon>I have a question
+  </button>
+  <button mat-button mat-raised-button color="primary" (click)="active = 'website'" *ngIf="active === ''">
+    <mat-icon>domain</mat-icon>
+    I want to create something
+  </button>
+
+  <app-ask-generic *ngIf="active === 'website'"></app-ask-generic>
+  <app-ask-speech *ngIf="active === 'speech'"></app-ask-speech>
+
+  <div id="result"></div>
+</div>
+
+
