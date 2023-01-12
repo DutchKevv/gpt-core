@@ -1,7 +1,5 @@
 <div style="display: flex; flex-direction: column; width: 100%; justify-content: center; align-items: center;">
 
-  <app-ask-speech></app-ask-speech>
-
   <div *ngIf="(busy$ | async) === false" style="display: flex; flex-direction: column; width: 100%; justify-content: center; align-items: center;">
     <form class="example-form" [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field class="example-full-width" style="width: 100%">
@@ -17,10 +15,8 @@
 
   </div>
 
-  <div *ngIf="busy$ | async">
+  <div *ngIf="gptService.busy$ | async">
     <mat-spinner></mat-spinner>
     Loading .......
   </div>
 </div>
-
-<div id="result"></div>

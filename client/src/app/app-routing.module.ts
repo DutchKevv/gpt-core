@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AskGenericComponent } from './components/ask-generic/ask-generic.component';
+import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: AskGenericComponent
+    component: HomeComponent
   }
 ];
 

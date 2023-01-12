@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { GptService } from 'src/app/services/gpt/gpt.service';
 
 @Component({
   selector: 'app-ask-generic',
@@ -16,7 +17,7 @@ export class AskGenericComponent {
     websiteAbout: new FormControl('')
   });
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(public gptService: GptService) { }
 
   onSubmit() {
 
@@ -24,23 +25,8 @@ export class AskGenericComponent {
 
     this.busy$.next(true)
 
-    this.httpClient.post('http://localhost:3000/api/test', values).subscribe({
-      next: (result: any) => {
-        console.log(result);
+    this.gptService.send(values)
 
-        this.busy$.next(false)
-        const iframe = document.createElement('iframe') as HTMLIFrameElement;
-        iframe.width = '100%';
-        iframe.height = '600px';
-        (document.getElementById('result') as any).appendChild(iframe)
-
-        iframe.contentWindow?.document.open();
-        iframe.contentWindow?.document.write(result.response);
-        iframe.contentWindow?.document.close();
-
-
-      }
-    })
   }
 
   addIframe() {

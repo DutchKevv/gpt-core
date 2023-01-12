@@ -36,10 +36,11 @@ app.listen(port, () => {
 //   res.send(html)
 // });
 
-app.post('/api/test', async (req, res) => {
-
+app.post('/api/website', async (req, res) => {
+  console.log(req.body)
   
-  const prompt = `Generate the source code for a fully functional personal website, with CSS and full of color, about ${req.body.websiteAbout} . Using JavaScript, CSS, and HTML`
+  // const prompt = `Generate the source code for a fully functional personal website for a dog called Toby. It should look like a designer created it. Using CSS and full of color. Using JavaScript, and HTML`
+  const prompt = `Generate the source code for a with ${req.body.websiteAbout}. Using CSS, Javascript and HTML`
 
   console.log('prompt: ', prompt)
   const html = await gptGeneric.giveCommando(prompt)
@@ -49,3 +50,14 @@ app.post('/api/test', async (req, res) => {
   res.send({response: html})
 })
 
+
+app.post('/api/speak', async (req, res) => {
+  const prompt = req.body.prompt
+
+  console.log('prompt: ', prompt)
+  const html = await gptGeneric.giveCommando(prompt)
+
+  console.log(html)
+
+  res.send({response: html})
+})

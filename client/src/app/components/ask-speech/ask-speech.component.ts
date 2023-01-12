@@ -1,6 +1,27 @@
 import { Component, OnInit } from '@angular/core';
+import { GptService } from 'src/app/services/gpt/gpt.service';
 
 declare let window: any;
+
+var SpeechRecognition: any = SpeechRecognition || window.webkitSpeechRecognition
+var SpeechGrammarList: any = SpeechGrammarList || window.webkitSpeechGrammarList
+var SpeechRecognitionEvent: any = SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent
+
+var recognition = new SpeechRecognition();
+if (SpeechGrammarList) {
+  // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
+  // This code is provided as a demonstration of possible capability. You may choose not to use it.
+  var speechRecognitionList = new SpeechGrammarList();;
+  recognition.grammars = speechRecognitionList;
+}
+recognition.continuous = false;
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+recognition.maxAlternatives = 1;
+
+
+var diagnostic = document.querySelector('#output') as HTMLElement;
+var bg = document.querySelector('html') as HTMLElement;
 
 @Component({
   selector: 'app-ask-speech',
@@ -9,27 +30,30 @@ declare let window: any;
 })
 export class AskSpeechComponent {
 
+  constructor(private gptService: GptService) { }
+
+  ngOnInit() {
+    this.gptService.speakDone$.subscribe(state => {
+      console.log(' state', state);
+      if (state) {
+        this.start()
+      }
+    })
+    this.start()
+
+
+    diagnostic = document.querySelector('#output') as HTMLElement;
+    bg = document.querySelector('html') as HTMLElement;
+  }
+
+
+  shutup() {
+    this.gptService.shutup()
+  }
+
   start() {
-    var SpeechRecognition: any = SpeechRecognition || window.webkitSpeechRecognition
-    var SpeechGrammarList: any = SpeechGrammarList || window.webkitSpeechGrammarList
-    var SpeechRecognitionEvent: any = SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent
 
-    var recognition = new SpeechRecognition();
-    if (SpeechGrammarList) {
-      // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
-      // This code is provided as a demonstration of possible capability. You may choose not to use it.
-      var speechRecognitionList = new SpeechGrammarList();;
-      recognition.grammars = speechRecognitionList;
-    }
-    recognition.continuous = false;
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    var diagnostic = document.querySelector('#output')  as HTMLElement;
-    var bg = document.querySelector('html')  as HTMLElement;
-
-    recognition.onresult = function (event: any) {
+    recognition.onresult = (event: any) => {
       // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
       // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
       // It has a getter so it can be accessed like an array
@@ -41,6 +65,11 @@ export class AskSpeechComponent {
       var color = event.results[0][0].transcript;
       diagnostic.textContent = 'Result received: ' + color + '.';
       bg.style.backgroundColor = color;
+
+      this.gptService.speak({
+        prompt: color
+      })
+
       console.log('Confidence: ' + event.results[0][0].confidence);
     }
 
@@ -52,9 +81,16 @@ export class AskSpeechComponent {
       diagnostic.textContent = "I didn't recognise that color.";
     }
 
-    recognition.onerror = function (event: any) {
+    recognition.onerror = (event: any) => {
       diagnostic.textContent = 'Error occurred in recognition: ' + event.error;
+      recognition.stop()
+      this.start()
     }
+
+    recognition.start();
+  }
+
+  ngOnDestroy() {
 
   }
 }
