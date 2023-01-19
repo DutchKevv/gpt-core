@@ -14,12 +14,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "baseUrl": ".",
-    "outDir": "build",
-    "noEmit": true
+    "outDir": "dist",
+    "noEmit": false
   },
   "exclude": [
     "node_modules",
-    "build"
+    "dist"
   ],
   "include": [
     "**/*.ts"
