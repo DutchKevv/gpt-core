@@ -1,16 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { SpeechService } from '../speech/speech.service';
+import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
 import { environment } from '../../../environments/environment'
 
-declare let window: any;
-declare let Capacitor: any;
+let host = 'https://real-estate.templatejump.com'
 
-let host = environment.production ? 'http://163.158.127.170:3000' : ''
-
-if (window.Capacitor) {
-  host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://163.158.127.170:3000'
+if (!environment.production) {
+  host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://localhost:3000'
 }
 
 @Injectable({
@@ -28,14 +25,21 @@ export class GptService {
     this.busy$.next(true)
 
     tempChangeDetector.detectChanges()
-    return this.httpClient.post<{response: string}>(host + '/api/speak', { prompt: text }).pipe(tap(result => {
-      this.content$.next(result.response)
-      this.busy$.next(false)
-    }))
+    return this.httpClient.post<{response: string}>(host + '/api/speak', { prompt: text })
+      .pipe(
+        tap(result => {
+          this.content$.next(result.response)
+          this.busy$.next(false)
+        },
+        catchError(error => {
+          this.busy$.next(false)
+          this.content$.next(error)
+          throw error
+        }))
+      )
   }
 
   sendWebsite(values: any) {
-
     this.busy$.next(true)
 
     this.httpClient.post(host + '/api/website', values).subscribe({

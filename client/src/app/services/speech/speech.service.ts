@@ -37,12 +37,12 @@ export class SpeechService {
       // SpeechGrammarList is not currently available in Safari, and does not have any effect in any other browser.
       // This code is provided as a demonstration of possible capability. You may choose not to use it.
       var speechRecognitionList = new SpeechGrammarList();;
-      this.browserRecognition .grammars = speechRecognitionList;
+      this.browserRecognition.grammars = speechRecognitionList;
     }
-    this.browserRecognition .continuous = false;
-    this.browserRecognition .lang = 'en-US';
-    this.browserRecognition .interimResults = false;
-    this.browserRecognition .maxAlternatives = 1;
+    this.browserRecognition.continuous = false;
+    this.browserRecognition.lang = 'en-US';
+    this.browserRecognition.interimResults = false;
+    this.browserRecognition.maxAlternatives = 1;
 
     this.browserRecognition.onresult = (event: any) => {
       this.browserRecognition.stop();
@@ -129,17 +129,47 @@ export class SpeechService {
   async listen() {
     await this.shutup()
 
-    if (Capacitor.isNativePlatform()) {
-      this.listenApp()
-    } else {
-      this.listenBrowser()
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await this.listenApp()
+      } else {
+        this.listenBrowser()
+      }
+    } catch (error) {
+      console.error(error)
+      this.listening$.next(false)
     }
+
   }
 
   async listenApp() {
     this.listening$.next(true)
 
     const isAvailable = await SpeechRecognition.available();
+
+    /**
+   * This method will check for audio permissions.
+   * @param none
+   * @returns permission - boolean true/false if permissions are granted
+   */
+    const hasPermission = await SpeechRecognition.hasPermission();
+
+    if (!hasPermission.permission) {
+      /**
+       * This method will prompt the user for audio permission.
+       * @param none
+       * @returns void
+       */
+      const getPermission = await SpeechRecognition.requestPermission();
+      console.log('getPermission', getPermission)
+      this.listening$.next(false)
+
+      return
+
+
+    }
+    console.log('hasPermission', hasPermission);
+
 
     // listin to partial results
     const listenerResult = await SpeechRecognition.addListener("partialResults", (data: any) => {
@@ -182,7 +212,7 @@ export class SpeechService {
   async getVoicesBrowser() {
     let voices = speechSynthesis.getVoices();
 
-    if(!voices.length){
+    if (!voices.length) {
       let utterance = new SpeechSynthesisUtterance("");
       speechSynthesis.speak(utterance);
       voices = speechSynthesis.getVoices();

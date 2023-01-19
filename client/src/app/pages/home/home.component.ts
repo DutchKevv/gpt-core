@@ -39,17 +39,21 @@ export class HomeComponent {
         // this.changeDetectorRef.detectChanges()
 
         this.gptService.sendSpeach(content, this.changeDetectorRef).subscribe(async result => {
-          await this.speechService.speak(result.response)
 
           this.changeDetectorRef.detectChanges()
 
           setTimeout(() => {
             const element = document.getElementById('result')
-            element.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
-          })
-        })
 
-        setTimeout(() => this.changeDetectorRef.detectChanges())
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'start',
+            });
+          }, 100)
+
+          await this.speechService.speak(result.response)
+        })
       }
     })
   }
