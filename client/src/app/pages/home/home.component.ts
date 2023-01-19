@@ -1,31 +1,58 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { distinctUntilChanged } from 'rxjs';
 import { GptService } from 'src/app/services/gpt/gpt.service';
-
-const count = 0
+import { SpeechService } from 'src/app/services/speech/speech.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class HomeComponent {
+
   active = ''
 
-  constructor(private gptService: GptService) {}
+  constructor(
+    public gptService: GptService,
+    public speechService: SpeechService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    const synth = window.speechSynthesis
-    let ourText
-    let count = 0
-    if (count++ === 0) {
-      ourText = "Give a fucking input, or suck gigantic blue Balls"
-    } else {
-      ourText = 'How may I help you?'
-    }
+    this.speechService.speaking$.subscribe(speaking => {
+      setTimeout(() => {
+        this.changeDetectorRef.detectChanges()
+      })
+    })
 
-    const utterThis = new SpeechSynthesisUtterance(ourText)
+    this.speechService.listening$.subscribe(listening => {
+      setTimeout(() => {
+        this.changeDetectorRef.detectChanges()
+      })
+    })
 
-    synth.speak(utterThis)
+    this.speechService.content$.subscribe(content => {
+      this.changeDetectorRef.detectChanges()
+
+      if (content) {
+        this.changeDetectorRef.detectChanges()
+
+        this.gptService.sendSpeach(content).subscribe(async result => {
+          await this.speechService.speak(result.response)
+
+          this.changeDetectorRef.detectChanges()
+        })
+      }
+    })
   }
 
+  shutup() {
+    this.speechService.shutup()
+    this.changeDetectorRef.detectChanges()
+  }
+
+  start() {
+    this.speechService.listen();
+  }
 }

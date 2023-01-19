@@ -1,56 +1,44 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { SpeechService } from '../speech/speech.service';
 
-const synth = window.speechSynthesis
+declare let window: any;
+declare let Capacitor: any;
+
+const host = ''
+// const host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://localhost:3000'
 
 @Injectable({
   providedIn: 'root'
 })
 export class GptService {
 
-  busy$ = new BehaviorSubject<boolean>(false)
+  busy$ = new BehaviorSubject<boolean>(null as any)
   speakDone$ = new BehaviorSubject<boolean>(false)
+  content$ = new BehaviorSubject<string>(null as any)
 
   constructor(private httpClient: HttpClient) { }
 
-  shutup() {
-    synth.cancel()
+  sendSpeach(text: string): Observable<{response: string}> {
+    this.busy$.next(true)
+
+    return this.httpClient.post<{response: string}>(host + '/api/speak', { prompt: text }).pipe(tap(result => {
+      this.content$.next(result.response)
+      this.busy$.next(false)
+    }))
   }
 
-  speak(values: any) {
+  sendWebsite(values: any) {
 
     this.busy$.next(true)
-    this.speakDone$.next(false)
 
-    this.httpClient.post('http://localhost:3000/api/speak', values).subscribe({
+    this.httpClient.post(host + '/api/website', values).subscribe({
       next: (result: any) => {
         console.log(result);
 
         this.busy$.next(false)
-
-        let ourText = result.response
-        const speech = new SpeechSynthesisUtterance(ourText)
-        speech.onend = () => {
-          this.speakDone$.next(true)
-        }
-        synth.speak(speech);
-
-        (document.getElementById('result') as any).innerText = result.response;
-      }
-    })
-  }
-
-  send(values: any) {
-
-    this.busy$.next(true)
-
-    this.httpClient.post('http://localhost:3000/api/website', values).subscribe({
-      next: (result: any) => {
-        console.log(result);
-
-        this.busy$.next(false)
-
+        this.content$.next(result.response)
         const iframe = document.createElement('iframe') as HTMLIFrameElement;
         iframe.width = '100%';
         iframe.height = '600px';

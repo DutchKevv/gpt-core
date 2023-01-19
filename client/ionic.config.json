@@ -1,0 +1,7 @@
+{
+  "name": "tellgpt",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

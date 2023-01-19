@@ -27,7 +27,7 @@ export class GPTGeneric {
                 max_tokens: 2000
             });
     
-            console.log(completion.data.choices[0])
+            console.log( completion.data.choices)
     
             return completion.data.choices[0].text
         } catch (error) {

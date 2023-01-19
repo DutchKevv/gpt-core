@@ -40,7 +40,9 @@ app.post('/api/website', async (req, res) => {
   console.log(req.body)
   
   // const prompt = `Generate the source code for a fully functional personal website for a dog called Toby. It should look like a designer created it. Using CSS and full of color. Using JavaScript, and HTML`
-  const prompt = `Generate the source code for a with ${req.body.websiteAbout}. Using CSS, Javascript and HTML`
+  const prompt = `Create an html skeleton with bootstrap responsive design and responsive menu and responsive hamburger menu that works on mobile as well. And import all the necessary scripts before the closing body tag, such as jquery, popper and bootstrap. It has to embed a list of funny images of ${req.body.websiteAbout}. Convert all images to base64`
+  // const prompt = `Create an html skeleton with bootstrap responsive design and responsive menu and responsive hamburger menu that works on mobile as well. And import all the necessary scripts before the closing body tag, such as jquery, popper and bootstrap. It has to show funny images of ${req.body.websiteAbout}. Convert all images to base64`
+  // const prompt = `Generate the source code for a with . Using CSS, Javascript and HTML`
 
   console.log('prompt: ', prompt)
   const html = await gptGeneric.giveCommando(prompt)
@@ -55,9 +57,9 @@ app.post('/api/speak', async (req, res) => {
   const prompt = req.body.prompt
 
   console.log('prompt: ', prompt)
-  const html = await gptGeneric.giveCommando(prompt)
+  const response = await gptGeneric.giveCommando(prompt)
 
-  console.log(html)
+  console.log(response)
 
-  res.send({response: html})
+  res.send({response})
 })
