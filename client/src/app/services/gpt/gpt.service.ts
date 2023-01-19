@@ -2,12 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { SpeechService } from '../speech/speech.service';
+import { environment } from '../../../environments/environment'
 
 declare let window: any;
 declare let Capacitor: any;
 
-const host = ''
-// const host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://localhost:3000'
+let host = environment.production ? 'http://163.158.127.170:3000' : ''
+
+if (window.Capacitor) {
+  host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://163.158.127.170:3000'
+}
 
 @Injectable({
   providedIn: 'root'

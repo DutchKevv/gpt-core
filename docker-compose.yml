@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+
+  api:
+    tty: true
+    container_name: tellgpt-api
+    image: tellgpt.azurecr.io/server-api:latest       
+    build:
+      context: ./
+      dockerfile: ./server/Dockerfile
+    volumes:
+      - ./server/public:/app/public
+      - ./server/.env:/app/.env
+    ports:
+      - 3000:3000

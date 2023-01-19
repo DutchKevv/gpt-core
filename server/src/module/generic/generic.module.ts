@@ -41,23 +41,4 @@ export class GPTGeneric {
         }
      
     }
-
-    // async giveCommando2(prompt: string) {
-    //     const api = new ChatGPTAPIBrowser({
-    //         email: 'kewin@live.nl',
-    //         // email: process.env.OPENAI_EMAIL as string,
-    //         password: 'Sec#826|openai'
-    //         // password: process.env.OPENAI_PASSWORD as string
-    //     })
-
-    //     await api.initSession()
-
-    //     const res = await oraPromise(api.sendMessage(prompt), {
-    //         text: prompt
-    //     })
-    //     console.log(res)
-
-    //     // close the browser at the end
-    //     await api.closeSession()
-    // }
 }

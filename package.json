@@ -4,7 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "d:build": "docker-compose build --parallel",
+    "d:build:api": "docker-compose build api",
+    "d:build:client": "docker-compose build client",
+    "d:build:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml build",
+    "d:start": "docker-compose up",
+    "d:stop": "docker-compose stop",
+    "d:client": "docker-compose up client",
+    "d:api": "docker-compose up api",
+    "d:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d api"
   },
   "repository": {
     "type": "git",

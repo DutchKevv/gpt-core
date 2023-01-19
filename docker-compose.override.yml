@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+
+  api:
+    build:
+      target: dev
+    volumes:
+      - ./server/src:/app/src
+      - ./server/dist:/app/dist
+      - ./server/package.json:/app/package.json
+      - ./server/nodemon.json:/app/nodemon.json
+      - ./server/tsconfig.json:/app/tsconfig.json
+    environment:
+      NODE_ENV: development
