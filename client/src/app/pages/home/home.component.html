@@ -16,7 +16,7 @@
 
   <div class="content">
 
-    <div style="text-align: center;">
+    <div style="height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
       <div *ngIf="(speechService.listening$ | async) === true" class="spinner-mic">
         <mat-spinner></mat-spinner>
         <mat-icon>mic</mat-icon>
@@ -36,7 +36,6 @@
 
       <ion-progress-bar type="indeterminate" *ngIf="gptService.busy$ | async"></ion-progress-bar>
     </div>
-
 
     <div id="result" *ngIf="(gptService.content$ | async) as response">{{response}}</div>
   </div>

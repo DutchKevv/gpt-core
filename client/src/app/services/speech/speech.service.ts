@@ -129,8 +129,6 @@ export class SpeechService {
   async listen() {
     await this.shutup()
 
-    this.listening$.next(true)
-
     if (Capacitor.isNativePlatform()) {
       this.listenApp()
     } else {
@@ -139,6 +137,8 @@ export class SpeechService {
   }
 
   async listenApp() {
+    this.listening$.next(true)
+
     const isAvailable = await SpeechRecognition.available();
 
     // listin to partial results
@@ -154,6 +154,8 @@ export class SpeechService {
       popup: false,
     });
 
+    this.listening$.next(false)
+
     if (result.matches[0]) {
       this.content$.next(result.matches[0])
     } else {
@@ -164,6 +166,8 @@ export class SpeechService {
   }
 
   listenBrowser() {
+    this.listening$.next(true)
+
     if (!this.browserRecognition) {
       this.initListenerBrowser()
     }

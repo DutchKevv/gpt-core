@@ -33,16 +33,23 @@ export class HomeComponent {
     })
 
     this.speechService.content$.subscribe(content => {
-      this.changeDetectorRef.detectChanges()
+      // this.changeDetectorRef.detectChanges()
 
       if (content) {
-        this.changeDetectorRef.detectChanges()
+        // this.changeDetectorRef.detectChanges()
 
-        this.gptService.sendSpeach(content).subscribe(async result => {
+        this.gptService.sendSpeach(content, this.changeDetectorRef).subscribe(async result => {
           await this.speechService.speak(result.response)
 
           this.changeDetectorRef.detectChanges()
+
+          setTimeout(() => {
+            const element = document.getElementById('result')
+            element.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+          })
         })
+
+        setTimeout(() => this.changeDetectorRef.detectChanges())
       }
     })
   }

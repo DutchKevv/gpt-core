@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { SpeechService } from '../speech/speech.service';
 
@@ -20,9 +20,10 @@ export class GptService {
 
   constructor(private httpClient: HttpClient) { }
 
-  sendSpeach(text: string): Observable<{response: string}> {
+  sendSpeach(text: string, tempChangeDetector: ChangeDetectorRef): Observable<{response: string}> {
     this.busy$.next(true)
 
+    tempChangeDetector.detectChanges()
     return this.httpClient.post<{response: string}>(host + '/api/speak', { prompt: text }).pipe(tap(result => {
       this.content$.next(result.response)
       this.busy$.next(false)
