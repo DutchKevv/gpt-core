@@ -10,12 +10,10 @@ export class GPTGeneric {
     }
 
     async init() {
-        console.log(process.env.OPENAI_API_KEY)
-
         const configuration = new Configuration({
             apiKey: process.env.OPENAI_API_KEY,
         });
-        
+
         this.openApi = new OpenAIApi(configuration);
     }
 
@@ -26,9 +24,9 @@ export class GPTGeneric {
                 prompt: prompt,
                 max_tokens: 2000
             });
-    
-            console.log( completion.data.choices)
-    
+
+            console.log(completion.data.choices)
+
             return completion.data.choices[0].text
         } catch (error) {
             console.error(error)
@@ -39,6 +37,5 @@ export class GPTGeneric {
 
             return 'ERROR'
         }
-     
     }
 }

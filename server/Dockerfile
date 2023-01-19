@@ -26,7 +26,7 @@ RUN npm run build \
     # && npm i -g modclean && modclean --patterns="default:*" --ignore="*makefile*" -r && npm r -g modclean \
     && npm cache clean --force \
     && rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/npm*
-CMD node ./dist/server.js
+CMD node ./dist/index.js
 
 EXPOSE 80
 EXPOSE 443

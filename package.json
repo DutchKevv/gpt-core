@@ -13,7 +13,8 @@
     "d:stop": "docker-compose stop",
     "d:client": "docker-compose up client",
     "d:api": "docker-compose up api",
-    "d:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d api"
+    "d:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d api",
+    "d:log": "docker-compose logs -f --tail=100"
   },
   "repository": {
     "type": "git",
