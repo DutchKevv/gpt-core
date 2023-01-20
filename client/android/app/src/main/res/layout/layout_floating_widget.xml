@@ -20,12 +20,11 @@
       android:orientation="vertical"
       android:visibility="gone">
 
-      <ImageView
-        android:id="@+id/loadingButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/splash" />
+      <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="#ab8282"
+        android:text="..." />
     </LinearLayout>
 
 
@@ -45,7 +44,7 @@
     </LinearLayout>
 
     <!-- this is the collapsed layout -->
-    <RelativeLayout
+    <LinearLayout
       android:id="@+id/layoutCollapsed"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -65,14 +64,13 @@
                 android:layout_height="25dp"
       android:layout_marginLeft="50dp"
                 android:src="@drawable/clippy" /> -->
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- this is the expanded layout -->
     <LinearLayout
       android:id="@+id/layoutExpanded"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:background="#a0c3d7"
       android:orientation="horizontal"
       android:padding="8dp"
       android:visibility="gone">
@@ -81,36 +79,8 @@
         android:id="@+id/buttonSimplifiedCodingExpanded"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/icon_simplified_coding"
+        android:src="@drawable/megaphone"
         tools:ignore="ContentDescription" />
-
-      <LinearLayout
-        android:id="@+id/buttonSimplifiedCoding"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:paddingLeft="15dp"
-          android:paddingRight="15dp"
-          android:paddingTop="15dp"
-          android:text="Simplified Coding"
-          android:textAlignment="center"
-          android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-          android:textColor="#ffffff"
-          android:textStyle="bold" />
-
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="www.simplifiedcoding.net"
-          android:textAlignment="center"
-          android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-          android:textColor="#ffffff"
-          android:textStyle="bold" />
-      </LinearLayout>
 
     </LinearLayout>
   </RelativeLayout>

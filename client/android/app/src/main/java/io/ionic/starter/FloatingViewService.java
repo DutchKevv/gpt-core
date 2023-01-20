@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.http.util.EntityUtils;
 import org.apache.http.HttpResponse;
@@ -40,7 +42,8 @@ import android.content.pm.PackageManager;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.view.MotionEvent;
+import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,12 +62,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class FloatingViewService extends Service implements View.OnClickListener {
+public class FloatingViewService extends Service
+    implements View.OnClickListener, android.speech.tts.TextToSpeech.OnInitListener {
 
   static FloatingViewService instance;
   public static final Integer RecordAudioRequestCode = 1;
-
-  TextToSpeech textToSpeech;
 
   private View loadingView;
   private View recordingView;
@@ -76,10 +78,22 @@ public class FloatingViewService extends Service implements View.OnClickListener
   private SpeechRecognizer speechRecognizer;
   private EditText editText;
   private ImageView micButton;
+  private int initialX;
+  private int initialY;
+  private float initialTouchX;
+  private float initialTouchY;
+  private android.speech.tts.TextToSpeech tts = null;
+  private Context context;
+  private int initializationStatus;
 
   public FloatingViewService() {
     System.out.println("INIT INIT INIT INIT #$3$###$#");
     instance = this;
+  }
+
+  @Override
+  public void onInit(int status) {
+    this.initializationStatus = status;
   }
 
   @Override
@@ -91,13 +105,15 @@ public class FloatingViewService extends Service implements View.OnClickListener
   public void onCreate() {
     super.onCreate();
 
-      System.out.println("onCreateonCreateonCreateonCreateonCreat");
+    System.out.println("onCreateonCreateonCreateonCreateonCreat");
+
+    tts = new android.speech.tts.TextToSpeech(this.getApplicationContext(), this);
 
     // getting the widget layout from xml using layout inflater
     mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null);
 
     // setting the layout parameters
-    final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
         WindowManager.LayoutParams.WRAP_CONTENT,
         WindowManager.LayoutParams.WRAP_CONTENT,
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -116,19 +132,11 @@ public class FloatingViewService extends Service implements View.OnClickListener
     // expandedText = (TextView) mFloatingView.findViewById(R.id.expandedText);
 
     // adding click listener to close button and expanded view
-    mFloatingView.findViewById(R.id.buttonClose).setOnClickListener(this);
+    // mFloatingView.findViewById(R.id.buttonClose).setOnClickListener(this);
+    mFloatingView.setOnClickListener(this);
     expandedView.setOnClickListener(this);
 
     ///////// TEMP TEMP TEMP
-
-    textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-      @Override
-      public void onInit(int status) {
-        if (status != TextToSpeech.ERROR) {
-          textToSpeech.setLanguage(Locale.UK);
-        }
-      }
-    });
 
     // if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO)
     ///////// != PackageManager.PERMISSION_GRANTED) {
@@ -138,8 +146,7 @@ public class FloatingViewService extends Service implements View.OnClickListener
     // editText = mFloatingView.findViewById(R.id.text);
     // micButton = mFloatingView.findViewById(R.id.button);
 
-
-    if(SpeechRecognizer.isRecognitionAvailable(this)) {
+    if (SpeechRecognizer.isRecognitionAvailable(this)) {
       speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
     } else {
       // SOME SORT OF ERROR
@@ -148,9 +155,6 @@ public class FloatingViewService extends Service implements View.OnClickListener
     final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
     speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-
-
 
     speechRecognizer.setRecognitionListener(new RecognitionListener() {
       @Override
@@ -203,81 +207,32 @@ public class FloatingViewService extends Service implements View.OnClickListener
       }
     });
 
-    // micButton.setOnTouchListener(new View.OnTouchListener() {
-    // @Override
-    // public boolean onTouch(View view, MotionEvent motionEvent) {
-    // if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-    // speechRecognizer.stopListening();
-    // }
-    // if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-    // micButton.setImageResource(R.drawable.splash);
-    // speechRecognizer.startListening(speechRecognizerIntent);
-    // }
-    // return false;
-    // }
-    // });
-
     ///////// TEMP TEMP TEMP
 
-    // adding an touchlistener to make drag movement of the floating widget
-    mFloatingView.findViewById(R.id.layoutExpanded).setOnTouchListener(new View.OnTouchListener() {
-      private int initialX;
-      private int initialY;
-      private float initialTouchX;
-      private float initialTouchY;
+    final Handler handler = new Handler();
+    Runnable mLongPressed = new Runnable() {
+      public void run() {
+        Intent intent = new Intent(mFloatingView.getContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-
-        switch (event.getAction()) {
-          case MotionEvent.ACTION_DOWN:
-            initialX = params.x;
-            initialY = params.y;
-            initialTouchX = event.getRawX();
-            initialTouchY = event.getRawY();
-            return true;
-
-          case MotionEvent.ACTION_UP:
-            toggleView("collapsed");
-            return true;
-
-          case MotionEvent.ACTION_MOVE:
-            // this code is helping the widget to move around the screen with fingers
-            params.x = initialX + (int) (event.getRawX() - initialTouchX);
-            params.y = initialY + (int) (event.getRawY() - initialTouchY);
-            mWindowManager.updateViewLayout(mFloatingView, params);
-            return true;
-        }
-        return false;
       }
-    });
+    };
 
     // adding an touchlistener to make drag movement of the floating widget
-    mFloatingView.findViewById(R.id.buttonClose).setOnTouchListener(new View.OnTouchListener() {
+    mFloatingView.setOnTouchListener(new View.OnTouchListener() {
       private int initialX;
       private int initialY;
       private float initialTouchX;
       private float initialTouchY;
-      private View view;
-
-      // final Handler handler = new Handler();
-      // Runnable mLongPressed = new Runnable() {
-      //   public void run() {
-      //     System.out.println("LOOOOOOOOOOOOOOOOOOOOOOOOONG");
-      //     Intent intent = new Intent(view.getContext(), MainActivity.class);
-      //     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      //     startActivity(intent);
-      //   }
-      // };
-
 
       @Override
       public boolean onTouch(View v, MotionEvent event) {
-        // view = v;
-        // if (event.getAction() == MotionEvent.ACTION_DOWN)
-        //   handler.postDelayed(mLongPressed, 300);
-        // if ((event.getAction() == MotionEvent.ACTION_UP))
-        //   handler.removeCallbacks(mLongPressed);
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN)
+          handler.postDelayed(mLongPressed, 300);
+        if ((event.getAction() == MotionEvent.ACTION_MOVE) || (event.getAction() == MotionEvent.ACTION_UP))
+          handler.removeCallbacks(mLongPressed);
 
         switch (event.getAction()) {
           case MotionEvent.ACTION_DOWN:
@@ -288,13 +243,15 @@ public class FloatingViewService extends Service implements View.OnClickListener
             return true;
 
           case MotionEvent.ACTION_UP:
-            // handler.removeCallbacks(mLongPressed);
+            handler.removeCallbacks(mLongPressed);
+            System.out.println("layoutExpanded UP UP UP");
             toggleView("recording");
 
             speechRecognizer.startListening(speechRecognizerIntent);
             return true;
 
           case MotionEvent.ACTION_MOVE:
+            System.out.println("layoutExpanded UP UP UP");
             // this code is helping the widget to move around the screen with fingers
             params.x = initialX + (int) (event.getRawX() - initialTouchX);
             params.y = initialY + (int) (event.getRawY() - initialTouchY);
@@ -304,7 +261,6 @@ public class FloatingViewService extends Service implements View.OnClickListener
         return false;
       }
     });
-
   }
 
   @Override
@@ -316,30 +272,68 @@ public class FloatingViewService extends Service implements View.OnClickListener
       mWindowManager.removeView(mFloatingView);
   }
 
-  /**
-   * @param v
-   */
   @Override
   public void onClick(View v) {
-    Intent intent = new Intent(this, MainActivity.class);
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    startActivity(intent);
+    // Intent intent = new Intent(this, MainActivity.class);
+    // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    // startActivity(intent);
 
-    collapsedView.setVisibility(View.GONE);
+    // collapsedView.setVisibility(View.INVISIBLE);
+
+    // handler.removeCallbacks(mLongPressed);
+
+    tts.stop();
+
+    System.out.println("onClickonClickonClickonClickonClickonClick");
+
+    toggleView("recording");
+
+    final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+    speechRecognizer.startListening(speechRecognizerIntent);
   }
 
-  // @Override
-  // public void onRequestPermissionsResult(int requestCode, @NonNull String[]
-  // permissions, @NonNull int[] grantResults) {
-  // super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-  // if (requestCode == RecordAudioRequestCode && grantResults.length > 0) {
-  // if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-  // Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
-  // }
-  // }
+  private void speak(String text) {
+    tts.setOnUtteranceProgressListener(
+        new UtteranceProgressListener() {
+          @Override
+          public void onStart(String utteranceId) {
+          }
+
+          @Override
+          public void onDone(String utteranceId) {
+            System.out.println("onDoneonDoneonDoneonDoneonDoneonDone");
+            toggleView("collapsed");
+          }
+
+          @Override
+          public void onError(String utteranceId) {
+            System.out.println("onDoneonDoneonDoneonDoneonDoneonDone");
+            toggleView("collapsed");
+          }
+        });
+
+    Locale locale = Locale.forLanguageTag("en");
+
+    // if (Build.VERSION.SDK_INT >= 21) {
+    HashMap<String, String> ttsParams = new HashMap<>();
+    ttsParams.put(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "1");
+    // ttsParams.put(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME,
+    // Float.toString(volume));
+
+    tts.setLanguage(locale);
+    // tts.setSpeechRate(rate);
+    // tts.setPitch(pitch);
+    tts.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, ttsParams);
+    // }
+  }
 
   private void makeCall(String text) {
     this.toggleView("loading");
+
+    setLoading();
 
     try {
       HttpClient httpclient = new DefaultHttpClient();
@@ -356,10 +350,12 @@ public class FloatingViewService extends Service implements View.OnClickListener
         String responseBody = EntityUtils.toString(response.getEntity());
         JSONObject responseJSON = new JSONObject(responseBody);
 
-        this.toggleView("expanded");
+        loadingView.setVisibility(View.INVISIBLE);
+        recordingView.setVisibility(View.INVISIBLE);
+        toggleView("expanded");
 
         // expandedText.setText(responseJSON.getString("response"));
-        textToSpeech.speak(responseJSON.getString("response"), TextToSpeech.QUEUE_FLUSH, null);
+        speak(responseJSON.getString("response"));
 
       } catch (ClientProtocolException e) {
         // TODO Auto-generated catch block
@@ -379,39 +375,47 @@ public class FloatingViewService extends Service implements View.OnClickListener
     // collapsedView.setVisibility(View.GONE);
   }
 
-
   public void hide() {
     toggleView("");
 
     collapsedView.setVisibility(View.INVISIBLE);
+    loadingView.setVisibility(View.INVISIBLE);
     // collapsedView.setVisibility(View.GONE);
   }
 
+  public void setLoading() {
+    toggleView("");
+
+    loadingView.setVisibility(View.VISIBLE);
+    collapsedView.setVisibility(View.INVISIBLE);
+    expandedView.setVisibility(View.INVISIBLE);
+  }
+
   public void toggleView(String viewName) {
-    if (textToSpeech != null) {
-      textToSpeech.stop();
-    }
+    loadingView = mFloatingView.findViewById(R.id.layoutLoading);
+    recordingView = mFloatingView.findViewById(R.id.layoutRecording);
+    collapsedView = mFloatingView.findViewById(R.id.layoutCollapsed);
+    expandedView = mFloatingView.findViewById(R.id.layoutExpanded);
 
     if (loadingView != null) {
       loadingView.setVisibility(View.INVISIBLE);
-      loadingView.setVisibility(View.GONE);
+      // loadingView.setVisibility(View.GONE);
     }
 
     if (collapsedView != null) {
       collapsedView.setVisibility(View.INVISIBLE);
-      collapsedView.setVisibility(View.GONE);
+      // collapsedView.setVisibility(View.GONE);
     }
 
     if (expandedView != null) {
       expandedView.setVisibility(View.INVISIBLE);
-      expandedView.setVisibility(View.GONE);
+      // expandedView.setVisibility(View.GONE);
     }
 
     if (recordingView != null) {
       recordingView.setVisibility(View.INVISIBLE);
-      recordingView.setVisibility(View.GONE);
+      // recordingView.setVisibility(View.GONE);
     }
-
 
     if (viewName == "loading") {
       loadingView.setVisibility(View.VISIBLE);

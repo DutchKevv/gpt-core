@@ -1,6 +1,7 @@
 package io.dutchapps.tellgpt;
 
 import java.util.ArrayList;
+import android.os.StrictMode;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
@@ -26,11 +27,12 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
   public void onPause() {
     super.onPause();
 
-    this.startBubbleService();
-
     System.out.println("SJOPW SJHOW SDFSDFF");
 
-    FloatingViewService.instance.show();
+    if (FloatingViewService.instance != null) {
+      FloatingViewService.instance.show();
+    }
+
     // ((MyApplication) this.getApplication()).startActivityTransitionTimer();
   }
 
@@ -47,7 +49,6 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
       FloatingViewService.instance.hide();
     }
 
-
     // ((MyApplication) this.getApplication()).startActivityTransitionTimer();
   }
 
@@ -56,12 +57,15 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
     super.onCreate(savedInstanceState);
     // setContentView(R.layout.activity_main);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-      askPermission();
+    this.startBubbleService();
+
+    if (android.os.Build.VERSION.SDK_INT > 9) {
+      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+      StrictMode.setThreadPolicy(policy);
     }
 
     // if (MainActivity.count == 0) {
-      // this.startBubbleService();
+    // this.startBubbleService();
     // }
 
     if (FloatingViewService.instance != null) {
@@ -95,7 +99,6 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
     System.out.println(requestCode);
     if (requestCode == SYSTEM_ALERT_WINDOW_PERMISSION) {
 
-
       if (!Settings.canDrawOverlays(this)) {
         // You don't have permission
         // checkPermission( );
@@ -105,9 +108,7 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
         this.startBubbleService();
         // Do as per your logic
       }
-
     }
-
   }
 
   private void askPermission() {
