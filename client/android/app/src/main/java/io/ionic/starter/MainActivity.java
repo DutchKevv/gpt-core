@@ -26,14 +26,28 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
   public void onPause() {
     super.onPause();
 
-    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-      if (FloatingViewService.class.getName().equals(service.service.getClassName())) {
-      }
+    this.startBubbleService();
+
+    System.out.println("SJOPW SJHOW SDFSDFF");
+
+    FloatingViewService.instance.show();
+    // ((MyApplication) this.getApplication()).startActivityTransitionTimer();
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    System.out.println("RESUME RESUME RESUME RESUME RESUME RESUME RESUME RESUME ");
+
+    if (FloatingViewService.instance != null) {
+
+      System.out.println("RESUME 2RESUME 22222222222222222222");
+
+      FloatingViewService.instance.hide();
     }
 
-    this.startBubbleService();
-    FloatingViewService.show();
+
     // ((MyApplication) this.getApplication()).startActivityTransitionTimer();
   }
 
@@ -47,8 +61,12 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
     }
 
     // if (MainActivity.count == 0) {
-    // this.startBubbleService();
+      // this.startBubbleService();
     // }
+
+    if (FloatingViewService.instance != null) {
+      FloatingViewService.instance.hide();
+    }
 
     // MainActivity.count = MainActivity.count + 1;
   }

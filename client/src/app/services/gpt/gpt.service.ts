@@ -6,18 +6,18 @@ import { environment } from '../../../environments/environment'
 
 let host = 'https://real-estate.templatejump.com'
 
-if (!environment.production) {
-  host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://localhost:3000'
-}
+// if (!environment.production) {
+//   host = Capacitor.isNativePlatform() ? 'http://10.0.2.2:3000' : 'http://localhost:3000'
+// }
 
 @Injectable({
   providedIn: 'root'
 })
 export class GptService {
 
-  busy$ = new BehaviorSubject<boolean>(null as any)
+  busy$ = new BehaviorSubject<boolean>(false)
   speakDone$ = new BehaviorSubject<boolean>(false)
-  content$ = new BehaviorSubject<string>(null as any)
+  content$ = new BehaviorSubject<string>(null)
 
   constructor(private httpClient: HttpClient) { }
 

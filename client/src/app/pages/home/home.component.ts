@@ -33,10 +33,13 @@ export class HomeComponent {
     })
 
     this.speechService.content$.subscribe(content => {
-      // this.changeDetectorRef.detectChanges()
+      this.changeDetectorRef.detectChanges()
 
       if (content) {
-        // this.changeDetectorRef.detectChanges()
+        setTimeout(() => {
+          this.changeDetectorRef.detectChanges()
+        })
+
 
         this.gptService.sendSpeach(content, this.changeDetectorRef).subscribe(async result => {
 
