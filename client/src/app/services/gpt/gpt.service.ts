@@ -24,7 +24,7 @@ export class GptService {
   sendSpeach(text: string, tempChangeDetector: ChangeDetectorRef): Observable<{response: string}> {
     this.busy$.next(true)
 
-    tempChangeDetector.detectChanges()
+    // tempChangeDetector.detectChanges()
     return this.httpClient.post<{response: string}>(host + '/api/speak', { prompt: text })
       .pipe(
         tap(result => {
@@ -33,7 +33,7 @@ export class GptService {
         },
         catchError(error => {
           this.busy$.next(false)
-          this.content$.next(error)
+          // this.content$.next(error)
           throw error
         }))
       )

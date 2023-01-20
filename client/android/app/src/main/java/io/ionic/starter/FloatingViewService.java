@@ -270,6 +270,7 @@ public class FloatingViewService extends Service implements View.OnClickListener
       //   }
       // };
 
+
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         // view = v;

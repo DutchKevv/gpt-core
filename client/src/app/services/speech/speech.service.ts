@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 // const getSupportedLanguages = async () => {
@@ -23,7 +23,7 @@ export class SpeechService {
 
   speaking$ = new BehaviorSubject<boolean>(false)
   listening$ = new BehaviorSubject<boolean>(false)
-  content$ = new BehaviorSubject<string>(null)
+  content$ = new Subject<string>()
 
   private browserRecognition: any
 

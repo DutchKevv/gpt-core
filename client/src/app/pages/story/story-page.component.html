@@ -1,0 +1,83 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <!-- <ion-title>{{ folder }}</ion-title> -->
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Ask me</ion-title>
+    </ion-toolbar>
+  </ion-header> -->
+
+  <div class="content">
+
+    <div *ngIf="gptService.busy$ | async">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="(gptService.busy$ | async) === false" style="margin: 0 auto;">
+      <div class="labels">
+        <ion-chip *ngFor="let label of labels.animals">{{label}}</ion-chip>
+        <ion-chip *ngFor="let label of labels.time">{{label}}</ion-chip>
+        <ion-chip *ngFor="let label of labels.flow">{{label}}</ion-chip>
+      </div>
+
+      <button (click)="finish()" mat-button mat-raised-button style="background-color: green; width: 100%;">
+        CREATE STORY
+      </button>
+
+      <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="height: 50%; display: flex; flex-shrink: 0; flex-direction: column; align-items: center;">
+
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Animals</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <button (click)="addDetail('ANIMALS', option)" mat-button mat-raised-button
+                style="background-color: green" *ngFor="let option of options.animals">
+                {{option}}
+              </button>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Time</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <button (click)="addDetail('TIME', option)" mat-button mat-raised-button style="background-color: green"
+                *ngFor="let option of options.time">
+                {{option}}
+              </button>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Flow</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <button (click)="addDetail('FLOW', option)" mat-button mat-raised-button style="background-color: green"
+                *ngFor="let option of options.flow">
+                {{option}}
+              </button>
+            </ion-card-content>
+          </ion-card>
+
+        </div>
+      </div>
+
+      <div id="result" *ngIf="(gptService.content$ | async) as response">{{response}}</div>
+    </div>
+  </div>
+
+</ion-content>
