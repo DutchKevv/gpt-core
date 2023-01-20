@@ -16,7 +16,7 @@
     "android:sync": "cap sync",
     "android:copy": "cap copy android",
     "android:keystore:create": "keytool -genkey -v -keystore easyNFT.keystore -alias easyNFT -keyalg RSA -keysize 2048 -validity 10000",
-    "android:build": "NODE_ENV=production ionic capacitor build android --prod",
+    "android:build": "NODE_ENV=production ionic capacitor build android --prod && npm run android:sync",
     "android:apk:debug": "npm run android:build && cd ./android && ./gradlew assembleDebug",
     "android:apk:debug:win": "npm run android:copy & cd android & ./gradlew assembleDebug",
     "android:apk:prod": "npm run android:build && npm run android:apk:sign",

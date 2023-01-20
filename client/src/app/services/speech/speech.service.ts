@@ -92,6 +92,27 @@ export class SpeechService {
     }
   }
 
+  async initListinerApp() {
+    /**
+    * This method will check for audio permissions.
+    * @param none
+    * @returns permission - boolean true/false if permissions are granted
+    */
+    const hasPermission = await SpeechRecognition.hasPermission();
+
+    if (!hasPermission.permission) {
+      /**
+       * This method will prompt the user for audio permission.
+       * @param none
+       * @returns void
+       */
+      const getPermission = await SpeechRecognition.requestPermission();
+      console.log('getPermission', getPermission)
+      this.listening$.next(false)
+
+      return
+    }
+  }
   async shutup() {
     Capacitor.isNativePlatform() ? await TextToSpeech.stop() : synth?.cancel()
     this.speaking$.next(false)
@@ -143,31 +164,16 @@ export class SpeechService {
   }
 
   async listenApp() {
+    const hasPermission = await SpeechRecognition.hasPermission();
+
+    if (!hasPermission.permission) {
+      await this.initListinerApp();
+    }
+
     this.listening$.next(true)
 
     const isAvailable = await SpeechRecognition.available();
 
-    /**
-   * This method will check for audio permissions.
-   * @param none
-   * @returns permission - boolean true/false if permissions are granted
-   */
-    const hasPermission = await SpeechRecognition.hasPermission();
-
-    if (!hasPermission.permission) {
-      /**
-       * This method will prompt the user for audio permission.
-       * @param none
-       * @returns void
-       */
-      const getPermission = await SpeechRecognition.requestPermission();
-      console.log('getPermission', getPermission)
-      this.listening$.next(false)
-
-      return
-
-
-    }
     console.log('hasPermission', hasPermission);
 
 

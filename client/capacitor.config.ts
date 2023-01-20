@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'tellgpt',
+  appId: 'io.dutchapps.tellgpt',
+  appName: 'TellGPT',
   webDir: 'www',
   bundledWebRuntime: false,
   server: {
