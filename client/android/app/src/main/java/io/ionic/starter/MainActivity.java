@@ -16,6 +16,11 @@ import android.provider.Settings;
 // import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import android.Manifest;
+import android.content.pm.PackageManager;
 
 public class MainActivity extends BridgeActivity implements View.OnClickListener {
 
@@ -26,6 +31,9 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
   @Override
   public void onPause() {
     super.onPause();
+
+    // https://stackoverflow.com/questions/34264508/how-to-solve-keyguard-update-monitor-error
+    System.gc();
 
     System.out.println("SJOPW SJHOW SDFSDFF");
 
@@ -64,6 +72,13 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
       StrictMode.setThreadPolicy(policy);
     }
 
+    if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+      int MY_PERMISSIONS_RECORD_AUDIO = 1;
+      MainActivity thisActivity = this;
+
+      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_RECORD_AUDIO);
+    }
+
     // if (MainActivity.count == 0) {
     // this.startBubbleService();
     // }
@@ -79,10 +94,10 @@ public class MainActivity extends BridgeActivity implements View.OnClickListener
     if (isMyServiceRunning(FloatingViewService.class) == false) {
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         startService(new Intent(MainActivity.this, FloatingViewService.class));
-        finish();
+        // finish();
       } else if (Settings.canDrawOverlays(this)) {
         startService(new Intent(MainActivity.this, FloatingViewService.class));
-        finish();
+        // finish();
       } else {
         askPermission();
         Toast.makeText(this, "You need System Alert Window Permission to do this",

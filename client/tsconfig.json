@@ -21,7 +21,7 @@
     "target": "ES2022",
     "module": "es2020",
     "lib": [
-      "ES2020",
+      "ES2022",
       "dom"
     ],
     "useDefineForClassFields": false

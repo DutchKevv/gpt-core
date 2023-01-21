@@ -137,24 +137,24 @@ public class FloatingViewService extends Service
     expandedView.setOnClickListener(this);
 
     ///////// TEMP TEMP TEMP
-
-    // if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO)
-    ///////// != PackageManager.PERMISSION_GRANTED) {
-    // // requestRecordAudioPermission();
-    // }
-
     // editText = mFloatingView.findViewById(R.id.text);
     // micButton = mFloatingView.findViewById(R.id.button);
 
     if (SpeechRecognizer.isRecognitionAvailable(this)) {
       speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
     } else {
-      // SOME SORT OF ERROR
+      Toast.makeText(this, "SpeechToText is unavailable.", Toast.LENGTH_LONG);
+      // return;
     }
 
-    final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+    Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+    }
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+
 
     speechRecognizer.setRecognitionListener(new RecognitionListener() {
       @Override
@@ -207,6 +207,8 @@ public class FloatingViewService extends Service
       }
     });
 
+    speechRecognizer.startListening(recognizerIntent);
+
     ///////// TEMP TEMP TEMP
 
     final Handler handler = new Handler();
@@ -247,7 +249,7 @@ public class FloatingViewService extends Service
             System.out.println("layoutExpanded UP UP UP");
             toggleView("recording");
 
-            speechRecognizer.startListening(speechRecognizerIntent);
+            // speechRecognizer.startListening(speechRecognizerIntent);
             return true;
 
           case MotionEvent.ACTION_MOVE:
@@ -286,13 +288,26 @@ public class FloatingViewService extends Service
 
     System.out.println("onClickonClickonClickonClickonClickonClick");
 
-    toggleView("recording");
+    // if (SpeechRecognizer.isRecognitionAvailable(this)) {
+    //   speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+    // } else {
+    //   Toast.makeText(this, "SpeechToText is unavailable.", Toast.LENGTH_LONG);
+    //   return;
+    // }
 
-    final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+    // toggleView("recording");
 
-    speechRecognizer.startListening(speechRecognizerIntent);
+    // speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+    // speechRecognizer.setRecognitionListener(this);
+
+    Intent voice = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    voice.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getClass()
+        .getPackage().getName());
+    voice.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    voice.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 10);
+
+    speechRecognizer.startListening(voice);
   }
 
   private void speak(String text) {

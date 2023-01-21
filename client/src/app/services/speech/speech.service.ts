@@ -115,7 +115,7 @@ export class SpeechService {
   }
   async shutup() {
     Capacitor.isNativePlatform() ? await TextToSpeech.stop() : synth?.cancel()
-    this.speaking$.next(false)
+    // this.speaking$.next(false)
   }
 
   async speak(text: string) {
@@ -140,10 +140,11 @@ export class SpeechService {
   async speakBrowser(text: string) {
     await this.shutup();
 
+    this.speaking$.next(true)
+
     const speech = new SpeechSynthesisUtterance(text)
     speech.onend = () => this.speaking$.next(false)
 
-    this.speaking$.next(true)
     synth.speak(speech);
   }
 
