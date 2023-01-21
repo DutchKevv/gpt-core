@@ -8,11 +8,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Ask me</ion-title>
-    </ion-toolbar>
-  </ion-header> -->
 
   <div class="content">
 
@@ -45,7 +40,7 @@
 
         <ion-card-content>
           <button (click)="addDetail('ANIMALS', option)" mat-button mat-raised-button
-            style="background-color: green" *ngFor="let option of options.animals">
+            *ngFor="let option of options.animals">
             {{option}}
           </button>
         </ion-card-content>
@@ -57,8 +52,7 @@
         </ion-card-header>
 
         <ion-card-content>
-          <button (click)="addDetail('TIME', option)" mat-button mat-raised-button style="background-color: green"
-            *ngFor="let option of options.time">
+          <button (click)="addDetail('TIME', option)" mat-button mat-raised-button *ngFor="let option of options.time">
             {{option}}
           </button>
         </ion-card-content>
@@ -70,8 +64,7 @@
         </ion-card-header>
 
         <ion-card-content>
-          <button (click)="addDetail('FLOW', option)" mat-button mat-raised-button style="background-color: green"
-            *ngFor="let option of options.flow">
+          <button (click)="addDetail('FLOW', option)" mat-button mat-raised-button *ngFor="let option of options.flow">
             {{option}}
           </button>
         </ion-card-content>

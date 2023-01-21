@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { distinctUntilChanged, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { GptService } from 'src/app/services/gpt/gpt.service';
 import { SpeechService } from 'src/app/services/speech/speech.service';
 
@@ -11,6 +11,14 @@ const storyText = `
   Tell about the history of ###ANIMALS### also include a history from wikipedia and old songs, from the ###TIME###.
 `
 
+const continueText = `
+  Write the next chapter.
+  This chapter should be around 500 words.
+  Continue on the previous chapter.
+  Use a logical structure and very colorful descriptions.
+  Add a short chapter name that triggers the user to read it"
+`
+
 @Component({
   selector: 'app-story-page',
   templateUrl: './story-page.component.html',
@@ -18,8 +26,6 @@ const storyText = `
   changeDetection: ChangeDetectionStrategy.Default
 })
 export class StoryPageComponent {
-
-  active = ''
 
   labels: any = {
     animals: [],
@@ -45,21 +51,12 @@ export class StoryPageComponent {
   ) {}
 
   ngOnInit() {
-    this.subscriptions.push(
-      this.speechService.speaking$.subscribe(speaking => {
-        setTimeout(() => {
-          this.changeDetectorRef.detectChanges()
-        })
-      })
-    )
-
     this.createText()
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe())
   }
-
 
   addDetail(type: string, text: string) {
     this.labels[type.toLowerCase()].push(text)
@@ -97,17 +94,13 @@ export class StoryPageComponent {
 
       await this.speechService.speak(result.response);
 
-      this.speechService.speaking$.subscribe(state => {
-        if (!state) {
-          this.send("Write the next chapter. This chapter should be around 500 words. Continue on the previous chapter. Use a logical structure and very colorful descriptions. Add a short chapter name that triggers the user to read it");
+      this.speechService.speaking$.subscribe(speaking => {
+        if (!speaking) {
+          this.send(continueText);
         }
-
       })
-
-      console.log(222222  )
     })
   }
-
 
   shutup() {
     this.speechService.shutup()
